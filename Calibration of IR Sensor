@@ -1,0 +1,20 @@
+const int IR_Left = A4;
+const int IR_Right = A3;
+
+void setup() {
+  pinMode(IR_Left, INPUT);
+  pinMode(IR_Right, INPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int leftValue = analogRead(IR_Left);
+  int rightValue = analogRead(IR_Right);
+
+  Serial.print("Left IR Sensor: ");
+  Serial.print(leftValue);
+  Serial.print(" | Right IR Sensor: ");
+  Serial.println(rightValue);
+
+  delay(500);
+}
