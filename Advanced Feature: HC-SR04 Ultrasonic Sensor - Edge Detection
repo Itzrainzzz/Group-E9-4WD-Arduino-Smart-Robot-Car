@@ -1,0 +1,94 @@
+#define trigPin 9
+#define echoPin 8 
+
+#define EN1 3 
+#define IN1 2
+#define IN2 13
+#define EN2 10
+#define IN3 12
+#define IN4 11
+
+const int edgeThreshold = 20; 
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  pinMode(EN1, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(EN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+}
+
+long measureDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  long duration = pulseIn(echoPin, HIGH);
+  long distance = duration * 0.034 / 2; 
+  return distance;
+}
+
+void moveForward() {
+  analogWrite(EN1, 100);
+  analogWrite(EN2, 100);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void moveBackward() {
+  analogWrite(EN1, 100);
+  analogWrite(EN2, 100);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void stopRobot() {
+  analogWrite(EN1, 0);
+  analogWrite(EN2, 0);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+
+void turnLeft() {
+  analogWrite(EN1, 255);
+  analogWrite(EN2, 255);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void loop() {
+  long distance = measureDistance();
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  if (distance > edgeThreshold) {
+    Serial.println("Edge detected! Stopping to prevent falling.");
+    stopRobot();
+    delay(500);
+    moveBackward();
+    delay(500);
+    turnLeft();
+    delay(450);
+    stopRobot();
+  } else {
+    Serial.println("Moving forward.");
+    moveForward();
+  }
+}
