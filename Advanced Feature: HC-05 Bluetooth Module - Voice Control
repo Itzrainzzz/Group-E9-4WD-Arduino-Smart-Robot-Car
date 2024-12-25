@@ -1,0 +1,102 @@
+#define ENA 3
+#define IN1 2
+#define IN2 13
+#define ENB 10
+#define IN3 12
+#define IN4 11
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENB, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+
+  stopMotors();
+  Serial.println("Robot Ready! Waiting for commands...");
+}
+
+void loop() {
+  if (Serial.available()) {
+    char command = Serial.read(); 
+    Serial.print("Command received: ");
+    Serial.println(command);
+
+    switch (command) {
+      case 'f': 
+        moveForward();
+        break;
+      case 'b': 
+        moveBackward();
+        break;
+      case 'l': 
+        turnLeft();
+        delay(450);
+        moveForward();
+        break;
+      case 'r': 
+        turnRight();
+        delay(450);
+        moveForward();
+        break;
+      case 's': 
+        stopMotors();
+        break;
+      default:
+        Serial.println("Invalid command");
+    }
+  }
+}
+
+void moveForward() {
+  analogWrite(ENA, 100);
+  analogWrite(ENB, 100);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  Serial.println("Moving Forward");
+}
+
+void moveBackward() {
+  analogWrite(ENA, 100);
+  analogWrite(ENB, 100);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  Serial.println("Moving Backward");
+}
+
+void turnLeft() {
+  analogWrite(ENA, 255);
+  analogWrite(ENB, 255);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  Serial.println("Turning Left");
+}
+
+void turnRight() {
+  analogWrite(ENA, 255);
+  analogWrite(ENB, 255);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  Serial.println("Turning Right");
+}
+
+void stopMotors() {
+  analogWrite(ENA, 0);
+  analogWrite(ENB, 0);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+  Serial.println("Motors Stopped");
+}
