@@ -1,50 +1,39 @@
 #include <LiquidCrystal.h>
 
-//Encoder AO Pins
-const int encoderLeft_AO_pin = A4; //AO pin for Left Encoder
-const int encoderRight_AO_pin = A3; //AO pin for Right Encoder
+const int encoderLeft_AO_pin = A4;
+const int encoderRight_AO_pin = A3; 
 
-//Variables for pulse detection
-const int threshold = 512; //Threshold for detecting a pulse 
-int lastAnalogLeft = 0, lastAnalogRight = 0; //Store last analog readings
-volatile long encoderLeft_count = 0, encoderRight_count = 0; //Pulse counts
+const int threshold = 512; 
+int lastAnalogLeft = 0, lastAnalogRight = 0; 
+volatile long encoderLeft_count = 0, encoderRight_count = 0; 
 
-//Wheel and Encoder Parameters
-const float wheel_diameter = 6.0; //in cm
-const int encoder_resolution = 20; //Pulses per wheel revolution
+const float wheel_diameter = 6.0; 
+const int encoder_resolution = 20; 
 
-//LCD Pins
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
-//Define motor control pins
-#define ENA 3 //Enable pin for left motor
-#define IN1 1  //Input 1 for left motor
-#define IN2 2  //Input 2 for left motor
-#define ENB 11  //Enable pin for right motor
-#define IN3 12 //Input 1 for right motor
-#define IN4 13 //Input 2 for right motor
+#define ENA 3 
+#define IN1 1  
+#define IN2 2  
+#define ENB 11  
+#define IN3 12 
+#define IN4 13
 
-//Define IR sensor pins
 #define IR_LEFT A2
 #define IR_RIGHT A1
 
-//Define sensor thresholds
 const int IR_THRESHOLD = 300;
 
-//Stopwatch variables
-unsigned long startTime = 0;    //Start time of the stopwatch
-unsigned long elapsedTime = 0;  //Elapsed time in milliseconds
-bool isMoving = false;          //Flag to track if the robot is moving
+unsigned long startTime = 0;    
+unsigned long elapsedTime = 0;  
+bool isMoving = false;          
 
 void setup() {
-  //Initialize LCD
   lcd.begin(16, 2);
 
-  //Set up IR sensor pins as inputs
   pinMode(IR_LEFT, INPUT);
   pinMode(IR_RIGHT, INPUT);
 
-  //Set up motor pins as outputs
   pinMode(ENA, OUTPUT);
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
@@ -52,55 +41,47 @@ void setup() {
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
 
-  //Set up encoder pins
   pinMode(encoderLeft_AO_pin, INPUT);
   pinMode(encoderRight_AO_pin, INPUT);
 
-  //Initialize motors as off
   analogWrite(ENA, 0);
   analogWrite(ENB, 0);
 
-  //Start Serial Communication for debugging
   Serial.begin(9600);
 }
 
 void loop() {
-  //Read analog values from IR sensors
   int leftSensor = analogRead(IR_LEFT);
   int rightSensor = analogRead(IR_RIGHT);
 
-  //Stopwatch logic: Start or stop the timer
   if (leftSensor > IR_THRESHOLD || rightSensor > IR_THRESHOLD) {
-    if (!isMoving) {  //If the robot just started moving
-      startTime = millis();   //Start the timer
-      isMoving = true;        //Set flag to moving
+    if (!isMoving) {  
+      startTime = millis();   
+      isMoving = true;        
       lcd.setCursor(0, 0);
       lcd.print("Time: 0.00 sec"); 
     }
   } else {
-    if (isMoving) {  //If the robot just stopped
-      elapsedTime = millis() - startTime; //Calculate total elapsed time
-      isMoving = false;                   //Set flag to stopped
+    if (isMoving) {  
+      elapsedTime = millis() - startTime; 
+      isMoving = false;                   
 
-      //Display final elapsed time on the LCD
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("Time:      secs");
       lcd.setCursor(6, 0);
-      lcd.print(elapsedTime / 1000.0, 2); //Display time in seconds (2 decimal places)
+      lcd.print(elapsedTime / 1000.0, 2);
     }  
   }
 
-  //Continuously update elapsed time while the robot is moving
   if (isMoving) {
-    unsigned long currentTime = millis() - startTime; //Calculate running time
+    unsigned long currentTime = millis() - startTime; 
     lcd.setCursor(0, 0);
     lcd.print("Time: ");
-    lcd.print(currentTime / 1000.0, 2); //Display current time in seconds
+    lcd.print(currentTime / 1000.0, 2); 
     lcd.print(" sec ");
   }
 
-  //Line-following logic
   if (leftSensor > IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
     moveForward();
   } else if (leftSensor < IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
@@ -111,11 +92,9 @@ void loop() {
     stopMotors();
   }
 
-  //Read encoder values
   int analogLeft = analogRead(encoderLeft_AO_pin);
   int analogRight = analogRead(encoderRight_AO_pin);
 
-  //Detect rising edges for encoders
   if ((analogLeft > threshold) && (lastAnalogLeft <= threshold)) {
     encoderLeft_count++;
   }
@@ -123,18 +102,13 @@ void loop() {
     encoderRight_count++;
   }
 
-  //Update last readings
   lastAnalogLeft = analogLeft;
   lastAnalogRight = analogRight;
 
-  //Calculate distances
   float distanceLeft = calculateDistance(encoderLeft_count);
   float distanceRight = calculateDistance(encoderRight_count);
-
-  //Calculate average distance
   float averageDistance = (distanceLeft + distanceRight) / 2;
 
-  //Display average distance on LCD
   lcd.setCursor(0, 1);
   lcd.print("Dist: ");
   lcd.print(averageDistance, 1);
@@ -142,10 +116,9 @@ void loop() {
 
   int sensorValue = analogRead(A2);
   Serial.println(sensorValue);
-  delay(500); //Slow down the output for readability
+  delay(500); 
 }
 
-//Motor control functions
 void moveForward() {
   analogWrite(ENA, 120);
   analogWrite(ENB, 120);
@@ -182,7 +155,6 @@ void stopMotors() {
   digitalWrite(IN4, LOW);
 }
 
-//Function to calculate distance based on pulse count
 float calculateDistance(long pulses) {
   float wheel_circumference = wheel_diameter * PI; //cm
   float distance_per_pulse = wheel_circumference / encoder_resolution;
