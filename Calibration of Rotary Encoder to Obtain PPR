@@ -1,0 +1,36 @@
+int left_encoder_pin = A2;  //Analog pin connected to the left encoder
+int right_encoder_pin = A1;  //Analog pin connected to the right encoder
+
+int left_pulse_count = 0; //To store the number of pulses on left encoder
+int right_pulse_count = 0; //To store the number of pulses on righht encoder 
+
+int left_last_state = 0; //Previous analog state on left encoder 
+int right_last_state = 0; //Previous analog state on right encoder 
+
+void setup() {
+  pinMode(left_encoder_pin, INPUT);
+  pinMode(right_encoder_pin, INPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int left_current_state = analogRead(left_encoder_pin); //Read the analog value on left encoder
+  int right_current_state = analogRead(right_encoder_pin); //Read the analog value on right encoder
+
+  //Check if the signal has transitioned (indicating a pulse)
+  if (left_current_state > 512 && left_last_state <= 512){ 
+    left_pulse_count++; //Count the rising edge (pulse)
+    Serial.print("Left pulse count: ");
+    Serial.println(left_pulse_count);
+  }
+
+  if (right_current_state > 512 && right_last_state <= 512){
+    right_pulse_count++;
+    Serial.print("Right pulse count: ");
+    Serial.println(right_pulse_count);
+  }
+
+  // Update the last state for the next loop
+  left_last_state = left_current_state;
+  right_last_state = right_current_state;
+}
