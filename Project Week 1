@@ -3,12 +3,12 @@
 const int rs = 8, en = 9, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-int IN1 = 1;
-int IN2 = 2;
 int ENA = 3; 
+int IN1 = 2;
+int IN2 = 13;
+int ENB = 10;
 int IN3 = 12;
-int IN4 = 13;
-int ENB = 11; 
+int IN4 = 11; 
 
 bool timerStopped = false; 
 
