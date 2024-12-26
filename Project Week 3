@@ -1,0 +1,234 @@
+#include <LiquidCrystal.h>
+#include <Wire.h>
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+
+const int rs = 8, en = 9, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+Adafruit_MPU6050 mpu;
+
+const int encoderLeft_AO_pin = A1;
+const int encoderRight_AO_pin = A0;
+const int threshold = 512;
+int lastAnalogLeft = 0, lastAnalogRight = 0;
+volatile long encoderLeft_count = 0, encoderRight_count = 0;
+
+const float wheel_diameter = 6.0; 
+const int encoder_resolution = 20; 
+
+const int ENA = 3, IN1 = 2, IN2 = 13, ENB = 10, IN3 = 12, IN4 = 11;
+
+#define IR_LEFT A3
+#define IR_RIGHT A2
+const int IR_THRESHOLD = 300;
+
+float startTime = 0;
+float totalTime = 0;
+float stopDistance = 0;
+
+void setup() {
+  lcd.begin(16, 2);
+
+  if (!mpu.begin()) {
+    lcd.setCursor(0, 0);
+    lcd.print("MPU6050 error");
+    while (1);
+  }
+
+  pinMode(IR_LEFT, INPUT);
+  pinMode(IR_RIGHT, INPUT);
+
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENB, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+
+  pinMode(encoderLeft_AO_pin, INPUT);
+  pinMode(encoderRight_AO_pin, INPUT);
+}
+
+void loop() {
+  followPath(70);
+
+  float angle = getRampAngle();
+  lcd.setCursor(0, 0);
+  lcd.print("Angle: ");
+  lcd.print(angle, 1);
+  lcd.print((char)223);
+
+  stopMotors();
+  delay(2000);
+  followPath(40);
+  stopMotors();
+  delay(4000);
+  turnLeft();
+  delay(1350);
+  followPath_lcd(60);
+
+  startTime = millis();
+
+  followPath_lcd(90);
+  stopMotors();
+  delay(2000);
+
+  totalTime = (millis() - startTime) / 1000.0; 
+  stopDistance = calculateDistance((encoderLeft_count + encoderRight_count) / 2);
+
+  lcd.setCursor(0, 0);
+  lcd.print("Time: ");
+  lcd.print(totalTime, 1);
+  lcd.print(" sec  ");
+  lcd.setCursor(0, 1);
+  lcd.print("Dist: ");
+  lcd.print(stopDistance, 1);
+  lcd.print(" cm   ");
+
+  followPath_lcd(9999);
+}
+
+void followPath(float targetDistance) {
+  encoderLeft_count = 0;
+  encoderRight_count = 0;
+
+  while (calculateDistance((encoderLeft_count + encoderRight_count) / 2) < targetDistance) {
+    int leftSensor = analogRead(IR_LEFT);
+    int rightSensor = analogRead(IR_RIGHT);
+    int analogLeft = analogRead(encoderLeft_AO_pin);
+    int analogRight = analogRead(encoderRight_AO_pin);
+
+    if ((analogLeft > threshold) && (lastAnalogLeft <= threshold)) {
+      encoderLeft_count++;
+    }
+    if ((analogRight > threshold) && (lastAnalogRight <= threshold)) {
+      encoderRight_count++;
+    }
+
+    lastAnalogLeft = analogLeft;
+    lastAnalogRight = analogRight;
+
+    if (leftSensor > IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
+      moveForward_1();
+    } else if (leftSensor < IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
+      turnLeft();
+    } else if (leftSensor > IR_THRESHOLD && rightSensor < IR_THRESHOLD) {
+      turnRight();
+    } else {
+      stopMotors();
+    }
+
+    float currentDistance = calculateDistance((encoderLeft_count + encoderRight_count) / 2);
+    float elapsedTime = (millis() - startTime) / 1000.0; 
+  }
+  stopMotors();
+}
+
+void followPath_lcd(float targetDistance) {
+  encoderLeft_count = 0;
+  encoderRight_count = 0;
+
+  while (calculateDistance((encoderLeft_count + encoderRight_count) / 2) < targetDistance) {
+    int leftSensor = analogRead(IR_LEFT);
+    int rightSensor = analogRead(IR_RIGHT);
+    int analogLeft = analogRead(encoderLeft_AO_pin);
+    int analogRight = analogRead(encoderRight_AO_pin);
+
+    if ((analogLeft > threshold) && (lastAnalogLeft <= threshold)) {
+      encoderLeft_count++;
+    }
+    if ((analogRight > threshold) && (lastAnalogRight <= threshold)) {
+      encoderRight_count++;
+    }
+
+    lastAnalogLeft = analogLeft;
+    lastAnalogRight = analogRight;
+
+    if (leftSensor > IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
+      moveForward_2();
+    } else if (leftSensor < IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
+      turnLeft();
+    } else if (leftSensor > IR_THRESHOLD && rightSensor < IR_THRESHOLD) {
+      turnRight();
+    } else {
+      stopMotors();
+    }
+
+    float currentDistance = calculateDistance((encoderLeft_count + encoderRight_count) / 2);
+    float elapsedTime = (millis() - startTime) / 1000.0; 
+
+    lcd.setCursor(0, 0);
+    lcd.print("Time: ");
+    lcd.print(elapsedTime, 1);
+    lcd.print(" sec  ");
+    lcd.setCursor(0, 1);
+    lcd.print("Dist: ");
+    lcd.print(currentDistance, 1);
+    lcd.print(" cm   ");
+  }
+  stopMotors();
+}
+
+void moveForward_1() {
+  analogWrite(ENA, 150);
+  analogWrite(ENB, 150);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void moveForward_2() {
+  analogWrite(ENA, 100);
+  analogWrite(ENB, 100);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void turnLeft() {
+  analogWrite(ENA, 255);
+  analogWrite(ENB, 255);
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void turnRight() {
+  analogWrite(ENA, 255);
+  analogWrite(ENB, 255);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void stopMotors() {
+  analogWrite(ENA, 0);
+  analogWrite(ENB, 0);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+
+float calculateDistance(long pulses) {
+  float wheel_circumference = wheel_diameter * 3.14159;
+  float distance_per_pulse = wheel_circumference / encoder_resolution;
+  return pulses * distance_per_pulse;
+}
+
+float getRampAngle() {
+  sensors_event_t a, g, temp;
+  mpu.getEvent(&a, &g, &temp);
+
+  float ax = a.acceleration.x + 0.80;
+  float ay = a.acceleration.y - 0.14;
+  float az = a.acceleration.z + 0.75;
+
+  float angle = atan2(ay, sqrt(ax * ax + az * az)) * 180.0 / 3.14159;
+  return angle;
+}
