@@ -1,0 +1,55 @@
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+#include <Wire.h>
+
+Adafruit_MPU6050 mpu;
+
+void setup() {
+  Serial.begin(9600);
+  if (!mpu.begin()) {
+    Serial.println("Failed to find MPU6050 chip");
+    while (1) {
+      delay(10);
+    }
+  }
+  Serial.println("MPU6050 Found!");
+}
+
+void loop() {
+  sensors_event_t a, g, temp;
+  mpu.getEvent(&a, &g, &temp);
+
+/*
+  Serial.print("Accelerometer (m/s^2): ");
+  Serial.print(a.acceleration.x); Serial.print(", ");
+  Serial.print(a.acceleration.y); Serial.print(", ");
+  Serial.print(a.acceleration.z); Serial.print(" | ");
+
+  Serial.print("Gyroscope (rad/s): ");
+  Serial.print(g.gyro.x); Serial.print(", ");
+  Serial.print(g.gyro.y); Serial.print(", ");
+  Serial.println(g.gyro.z);
+
+  delay(500);
+  */
+
+  float ax_corrected = a.acceleration.x + 0.80;
+  float ay_corrected = a.acceleration.y - 0.14;
+  float az_corrected = a.acceleration.z + 0.75;
+
+  float gx_corrected = g.gyro.x + 0.26;
+  float gy_corrected = g.gyro.y + 0.05;
+  float gz_corrected = g.gyro.z - 0.08;
+
+  Serial.print("Corrected Accelerometer: ");
+  Serial.print(ax_corrected); Serial.print(", ");
+  Serial.print(ay_corrected); Serial.print(", ");
+  Serial.print(az_corrected); Serial.print(" | ");
+
+  Serial.print("Corrected Gyroscope: ");
+  Serial.print(gx_corrected); Serial.print(", ");
+  Serial.print(gy_corrected); Serial.print(", ");
+  Serial.println(gz_corrected);
+
+  delay(500);
+}
