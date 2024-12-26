@@ -1,10 +1,10 @@
 #define trigPin 9   
 #define echoPin 8   
 
-#define EN1 3  
+#define ENA 3  
 #define IN1 2  
 #define IN2 13 
-#define EN2 10 
+#define ENB 10 
 #define IN3 12 
 #define IN4 11 
 
@@ -16,10 +16,10 @@ void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
 
-  pinMode(EN1, OUTPUT);
+  pinMode(ENA, OUTPUT);
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
-  pinMode(EN2, OUTPUT);
+  pinMode(ENB, OUTPUT);
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
 }
@@ -37,8 +37,8 @@ long measureDistance() {
 }
 
 void moveForward() {
-  analogWrite(EN1, 100);
-  analogWrite(EN2, 100);
+  analogWrite(ENA, 100);
+  analogWrite(ENB, 100);
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, HIGH);
@@ -46,8 +46,8 @@ void moveForward() {
 }
 
 void moveBackward() {
-  analogWrite(EN1, 100);
-  analogWrite(EN2, 100);
+  analogWrite(ENA, 100);
+  analogWrite(ENB, 100);
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
   digitalWrite(IN3, LOW);
@@ -55,8 +55,8 @@ void moveBackward() {
 }
 
 void stopRobot() {
-  analogWrite(EN1, 0);
-  analogWrite(EN2, 0);
+  analogWrite(ENA, 0);
+  analogWrite(ENB, 0);
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
@@ -64,8 +64,8 @@ void stopRobot() {
 }
 
 void turnLeft() {
-  analogWrite(EN1, 250);
-  analogWrite(EN2, 250);
+  analogWrite(ENA, 250);
+  analogWrite(ENB, 250);
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
