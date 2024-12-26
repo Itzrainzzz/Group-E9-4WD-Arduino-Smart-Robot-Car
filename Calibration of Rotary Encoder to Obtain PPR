@@ -1,5 +1,5 @@
-int left_encoder_pin = A2; 
-int right_encoder_pin = A1;  
+int left_encoder_pin = A1; 
+int right_encoder_pin = A0;  
 
 int left_pulse_count = 0; 
 int right_pulse_count = 0; 
