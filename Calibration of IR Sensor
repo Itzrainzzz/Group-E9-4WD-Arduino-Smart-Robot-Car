@@ -1,5 +1,5 @@
-const int IR_Left = A4;
-const int IR_Right = A3;
+const int IR_Left = A3;
+const int IR_Right = A2;
 
 void setup() {
   pinMode(IR_Left, INPUT);
