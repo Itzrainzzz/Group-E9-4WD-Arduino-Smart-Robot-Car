@@ -109,11 +109,11 @@ void followPath(float targetDistance) {
     lastAnalogLeft = analogLeft;
     lastAnalogRight = analogRight;
 
-    if (leftSensor > IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
+    if (leftSensor >= IR_THRESHOLD && rightSensor >= IR_THRESHOLD) {
       moveForward_1();
-    } else if (leftSensor < IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
+    } else if (leftSensor < IR_THRESHOLD && rightSensor >= IR_THRESHOLD) {
       turnLeft();
-    } else if (leftSensor > IR_THRESHOLD && rightSensor < IR_THRESHOLD) {
+    } else if (leftSensor >= IR_THRESHOLD && rightSensor < IR_THRESHOLD) {
       turnRight();
     } else {
       stopMotors();
@@ -145,11 +145,11 @@ void followPath_lcd(float targetDistance) {
     lastAnalogLeft = analogLeft;
     lastAnalogRight = analogRight;
 
-    if (leftSensor > IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
+    if (leftSensor >= IR_THRESHOLD && rightSensor >= IR_THRESHOLD) {
       moveForward_2();
-    } else if (leftSensor < IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
+    } else if (leftSensor < IR_THRESHOLD && rightSensor >= IR_THRESHOLD) {
       turnLeft();
-    } else if (leftSensor > IR_THRESHOLD && rightSensor < IR_THRESHOLD) {
+    } else if (leftSensor >= IR_THRESHOLD && rightSensor < IR_THRESHOLD) {
       turnRight();
     } else {
       stopMotors();
