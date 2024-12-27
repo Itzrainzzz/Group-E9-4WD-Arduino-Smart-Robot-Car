@@ -54,7 +54,7 @@ void loop() {
   int leftSensor = analogRead(IR_LEFT);
   int rightSensor = analogRead(IR_RIGHT);
 
-  if (leftSensor > IR_THRESHOLD || rightSensor > IR_THRESHOLD) {
+  if (leftSensor >= IR_THRESHOLD || rightSensor >= IR_THRESHOLD) {
     if (!isMoving) {  
       startTime = millis();   
       isMoving = true;        
@@ -82,11 +82,11 @@ void loop() {
     lcd.print(" sec ");
   }
 
-  if (leftSensor > IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
+  if (leftSensor >= IR_THRESHOLD && rightSensor >= IR_THRESHOLD) {
     moveForward();
-  } else if (leftSensor < IR_THRESHOLD && rightSensor > IR_THRESHOLD) {
+  } else if (leftSensor < IR_THRESHOLD && rightSensor >= IR_THRESHOLD) {
     turnLeft();
-  } else if (leftSensor > IR_THRESHOLD && rightSensor < IR_THRESHOLD) {
+  } else if (leftSensor >= IR_THRESHOLD && rightSensor < IR_THRESHOLD) {
     turnRight();
   } else if (leftSensor < IR_THRESHOLD && rightSensor < IR_THRESHOLD) {
     stopMotors();
