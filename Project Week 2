@@ -156,7 +156,7 @@ void stopMotors() {
 }
 
 float calculateDistance(long pulses) {
-  float wheel_circumference = wheel_diameter * PI; //cm
+  float wheel_circumference = wheel_diameter * PI;
   float distance_per_pulse = wheel_circumference / encoder_resolution;
   return pulses * distance_per_pulse;
 }
