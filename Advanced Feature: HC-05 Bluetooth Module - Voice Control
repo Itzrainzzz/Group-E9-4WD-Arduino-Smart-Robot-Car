@@ -26,23 +26,23 @@ void loop() {
     Serial.println(command);
 
     switch (command) {
-      case 'f': 
+      case 'F': 
         moveForward();
         break;
-      case 'b': 
+      case 'B': 
         moveBackward();
         break;
-      case 'l': 
+      case 'L': 
         turnLeft();
         delay(450);
         moveForward();
         break;
-      case 'r': 
+      case 'R': 
         turnRight();
         delay(450);
         moveForward();
         break;
-      case 's': 
+      case 'S': 
         stopMotors();
         break;
       default:
